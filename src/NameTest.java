@@ -1,13 +1,14 @@
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class NameTest {
-    //最终版本
+
+
+                      //二零二六年十月十一日，完成项目练习
+
+
     public static void main(String[] args) throws IOException {
-        
         //创建一个集合。后续存放名字信息
         ArrayList<String> namesList = new ArrayList<>();
         //调用方法，获取工作目录。后续创建及检测文件时使用
@@ -22,8 +23,7 @@ public class NameTest {
         //如果存在就创建一个Reader读取对象并把名字信息设置为加载成功，后续用来读取文件
         //不存在则创建新的文件
         if (namesFile.exists()) {
-            //显式指定 UTF-8，避免在中文 Windows 上被按 GBK 读取导致姓名乱码
-            nameReader = Files.newBufferedReader(namesFile.toPath(), StandardCharsets.UTF_8);
+            nameReader = new BufferedReader(new FileReader(namesFile));
             namesFileLoaded = true;
         } else {
             namesFile.createNewFile();
@@ -34,9 +34,7 @@ public class NameTest {
         //                     （在24行时已经创建成功，但没有提示）
         if (namesFileLoaded) {
             while ((nameLine = nameReader.readLine()) != null) {
-                nameLine = stripBom(nameLine);
                 String[] split = nameLine.split("-");
-                //按'-'切割字符串，手动清洗数据添加至集合，防止出现问题
                 if (split.length == 3) {
                     String part1 = split[0].trim();
                     String part2 = split[1].trim();
@@ -61,7 +59,9 @@ public class NameTest {
             start(namesList, baseDir, nameCountFile);
         } else {
             nameCountFile.createNewFile();
-            Files.write(nameCountFile.toPath(), "0".getBytes(StandardCharsets.UTF_8));
+            FileWriter nameCountFileWriter = new FileWriter(nameCountFile);
+            nameCountFileWriter.write("0");
+            nameCountFileWriter.close();
             System.out.println("已创建Name-Count并初始化");
             System.exit(0);
         }
@@ -80,15 +80,13 @@ public class NameTest {
         //检测作弊文件是否存在
         //如果存在就读取第一行的内容
         if (cheatConfigFile.exists()) {
-            BufferedReader cheatConfigReader =
-                    Files.newBufferedReader(cheatConfigFile.toPath(), StandardCharsets.UTF_8);
-            cheatConfigLine = stripBom(cheatConfigReader.readLine());
+            BufferedReader cheatConfigReader = new BufferedReader(new FileReader(cheatConfigFile));
+            cheatConfigLine = cheatConfigReader.readLine();
             cheatConfigReader.close();
         }
 
-        BufferedReader nameCountReader =
-                Files.newBufferedReader(nameCountFile.toPath(), StandardCharsets.UTF_8);
-        String countLine = stripBom(nameCountReader.readLine());
+        BufferedReader nameCountReader = new BufferedReader(new FileReader(nameCountFile));
+        String countLine = nameCountReader.readLine();
         nameCountReader.close();
         //初始化值
         //cheatAtCount：作弊文件内的指定计数
@@ -100,11 +98,25 @@ public class NameTest {
         boolean cheatEnabled = false;
         boolean cheatNameFound = false;
 
-        //检测作弊功能是否开启：配置行必须同时包含 "/" 和一个非空的名字前缀
-        if (cheatConfigLine != null && cheatConfigLine.contains("/")) {
-            String[] split = cheatConfigLine.split("/");
-            if (split.length >= 2 && !split[1].trim().isEmpty()) {
-                cheatEnabled = true;
+        //检测作弊功能是否开启方案一：（已废弃）
+/*
+        if (!(cheatingLine == null || cheatingLine.isEmpty() || cheatingLine.contains("/"))) {
+            String[] split = cheatingLine.split("/");
+            if (split.length >= 2 &&  !(split[1].isEmpty()) ) {
+                cheatingFlag = true;
+            }
+        }
+*/
+
+        //检测作弊功能是否开启方案二：
+        if (!(cheatConfigLine == null || cheatConfigLine.isEmpty())) {
+            for (int i = 0; i < cheatConfigLine.toCharArray().length; i++) {
+                if (cheatConfigLine.toCharArray()[i] == '/') {
+                    String[] split = cheatConfigLine.split("/");
+                    if (split.length >= 2 && !(split[1].trim().isEmpty())) {
+                        cheatEnabled = true;
+                    }
+                }
             }
         }
         try {
@@ -130,7 +142,9 @@ public class NameTest {
                 cheatAtCount = strCount.isEmpty() ? -1 : Integer.parseInt(strCount);
             } catch (NumberFormatException e) {
                 System.out.println("加载Name-Cheating时失败，已初始化默认为null");
-                Files.write(cheatConfigFile.toPath(), "null".getBytes(StandardCharsets.UTF_8));
+                FileWriter fw = new FileWriter(cheatConfigFile);
+                fw.write("null");
+                fw.close();
                 System.exit(0);
             }
             //+1是为了符合用户使用习惯
@@ -161,29 +175,27 @@ public class NameTest {
                 System.out.println(namesList.get(randomIndex));
                 currentCount++;
             }
-            Files.write(nameCountFile.toPath(), String.valueOf(currentCount).getBytes(StandardCharsets.UTF_8));
+            FileWriter fw = new FileWriter(nameCountFile);
+            fw.write(String.valueOf(currentCount));
+            fw.close();
         } else {
             Random rand = new Random();
             int randomIndex = rand.nextInt(namesList.size());
             System.out.println(namesList.get(randomIndex));
             currentCount++;
-            Files.write(nameCountFile.toPath(), String.valueOf(currentCount).getBytes(StandardCharsets.UTF_8));
+            FileWriter fw = new FileWriter(nameCountFile);
+            fw.write(String.valueOf(currentCount));
+            fw.close();
         }
     }
 
     private static void resetCountFile(File nameCountFile) throws IOException {
-        //计数器文件为空或内容损坏时，重置为 0 并退出，避免后续解析继续出错
+        //抽取方法，方便调用
         System.out.println("加载Name-Count时失败，已初始化默认为0开始");
-        Files.write(nameCountFile.toPath(), "0".getBytes(StandardCharsets.UTF_8));
+        FileWriter currentCountWriter = new FileWriter(nameCountFile);
+        currentCountWriter.write("0");
+        currentCountWriter.close();
         System.exit(0);
-    }
-
-    private static String stripBom(String line) {
-        //去掉记事本 / PowerShell 保存 UTF-8 时写在文件开头的 BOM，否则第一个姓名会多出一个不可见字符
-        if (line != null && line.startsWith("\uFEFF")) {
-            return line.substring(1);
-        }
-        return line;
     }
 
     private static File getBaseDir() {
