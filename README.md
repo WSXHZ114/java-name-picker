@@ -57,14 +57,17 @@ java -jar Man.jar
 ## 运行效果（首次运行）
 
 ```
-第一次：$ java -jar Man.jar
+第一次：
+$java -jar Man.jar
 已创建Name文件，请补充内容
 已创建Name-Count并初始化
 
-第二次：$ java -jar Man.jar
+第二次：
+$ java -jar Man.jar
 张伟-男-21
 
-第三次：$ java -jar Man.jar
+第三次：
+$ java -jar Man.jar
 李娜-女-20
 ```
 
