@@ -54,17 +54,17 @@ java -jar Man.jar
 
 4. 程序会在 jar 所在目录自动创建所需的 txt 文件
 
-## 运行效果
+## 运行效果（首次运行）
 
 ```
-$ java -jar Man.jar
+第一次：$ java -jar Man.jar
 已创建Name文件，请补充内容
 已创建Name-Count并初始化
 
-$ java -jar Man.jar
+第二次：$ java -jar Man.jar
 张伟-男-21
 
-$ java -jar Man.jar
+第三次：$ java -jar Man.jar
 李娜-女-20
 ```
 
