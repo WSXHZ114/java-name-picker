@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class NameTest {
-    //2026年10月11日，完成项目练习
+    //最终版本
     public static void main(String[] args) throws IOException {
         
         //创建一个集合。后续存放名字信息
